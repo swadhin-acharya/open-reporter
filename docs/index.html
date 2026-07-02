@@ -296,7 +296,7 @@
 
 <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
 <section class="hero">
-  <div class="hero-badge"><i class="fa-solid fa-bolt"></i> v1.1.2 — Open Source</div>
+  <div class="hero-badge"><i class="fa-solid fa-bolt"></i> v1.1.3 — Open Source</div>
   <h1>Beautiful Test Reports<br/>for Every Java Framework</h1>
   <p class="hero-sub">
     OpenReporter generates self-contained, interactive HTML reports from your test runs.
@@ -468,7 +468,7 @@
         <div class="code-block"><span class="tag">&lt;dependency&gt;</span>
   <span class="tag">&lt;groupId&gt;</span>com.github.swadhinsoft<span class="tag">&lt;/groupId&gt;</span>
   <span class="tag">&lt;artifactId&gt;</span>open-reporter<span class="tag">&lt;/artifactId&gt;</span>
-  <span class="tag">&lt;version&gt;</span>1.1.2<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;version&gt;</span>1.1.3<span class="tag">&lt;/version&gt;</span>
   <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></div>
         <div class="copy-row">
@@ -480,7 +480,7 @@
 
     <div class="note" style="margin-top:1.5rem">
       <strong>Gradle (Kotlin DSL):</strong><br/>
-      <code style="color:var(--text)">testImplementation("com.github.swadhinsoft:open-reporter:1.1.2")</code>
+      <code style="color:var(--text)">testImplementation("com.github.swadhinsoft:open-reporter:1.1.3")</code>
       — add <code>maven { url = uri("https://jitpack.io") }</code> to your <code>repositories</code> block first.
     </div>
   </div>
@@ -665,7 +665,12 @@
   <span class="str">"outputDir"</span>:        <span class="val">"target/open-reporter"</span>,
   <span class="str">"environment"</span>:      <span class="val">"QA"</span>,
   <span class="str">"reportFileName"</span>:   <span class="val">"report.html"</span>,
-  <span class="str">"timestampedReport"</span>: <span class="val">false</span>
+  <span class="str">"timestampedReport"</span>: <span class="val">false</span>,
+  <span class="str">"executionSummary"</span>: {
+    <span class="str">"Platform"</span>:    { <span class="str">"value"</span>: <span class="val">"Android 16"</span>, <span class="str">"logo"</span>: <span class="val">"ANDROID"</span> },
+    <span class="str">"Device"</span>:      { <span class="str">"value"</span>: <span class="val">"Pixel 8 Pro"</span> },
+    <span class="str">"Environment"</span>: { <span class="str">"value"</span>: <span class="val">"QA"</span> }
+  }
 }</div>
         <div class="copy-row">
           <span>Relative paths resolve from project root</span>
@@ -702,6 +707,9 @@ mvn test -Dopenreporter.config=/path/to/file.json</div>
           <tr><td>environment</td><td>Environment label shown in the report (e.g. QA, Staging, Prod)</td><td>"—"</td></tr>
           <tr><td>reportFileName</td><td>Custom report filename (e.g. "my-report.html")</td><td>"report.html"</td></tr>
           <tr><td>timestampedReport</td><td>Append a <code>_yyyyMMdd_HHmmss</code> timestamp before the extension</td><td>false</td></tr>
+          <tr><td>executionSummary</td><td>Object with key → { value, logo? } entries shown in the Execution Summary panel above the charts</td><td>{} (hidden)</td></tr>
+          <tr><td>executionSummary.*.value</td><td>Text value for the execution info field</td><td>—</td></tr>
+          <tr><td>executionSummary.*.logo</td><td>BuiltInLogo name (ANDROID, MQTT, JENKINS…) or image URL/path</td><td>auto icon or none</td></tr>
         </tbody>
       </table>
     </div>

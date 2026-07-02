@@ -370,8 +370,7 @@
 <script>
 /* ── Injected data ──────────────────────────────────────────────────────── */
 const testData = {{TEST_DATA_JSON}};
-const execInfo = {{EXECUTION_INFO_JSON}};
-const execLogos = {{EXECUTION_LOGOS_JSON}};
+const execSummary = {{EXECUTION_SUMMARY_JSON}};
 
 /* ── State ──────────────────────────────────────────────────────────────── */
 let activeFilter = 'ALL';
@@ -435,34 +434,11 @@ function osIcon(os, browser) {
 }
 
 /* ── Execution Summary ──────────────────────────────────────────────────── */
-const EXEC_ICONS = {
-  'Platform':        '<i class="fa-brands fa-android" style="color:#3ddc84"></i>',
-  'OS':              '<i class="fa-brands fa-windows" style="color:#0078d4"></i>',
-  'Device':          '<i class="fa-solid fa-mobile-screen" style="color:#58a6ff"></i>',
-  'Device Model':    '<i class="fa-solid fa-microchip" style="color:#58a6ff"></i>',
-  'Phone':           '<i class="fa-solid fa-mobile-screen-button" style="color:#58a6ff"></i>',
-  'App Version':     '<i class="fa-solid fa-tag" style="color:#a5d6a7"></i>',
-  'Firmware Version':'<i class="fa-solid fa-chip" style="color:#ffa657"></i>',
-  'Environment':     '<i class="fa-solid fa-cloud" style="color:#58a6ff"></i>',
-  'Country':         '<i class="fa-solid fa-flag" style="color:#ff7139"></i>',
-  'Router':          '<i class="fa-solid fa-wifi" style="color:#3fb950"></i>',
-  'WiFi Band':       '<i class="fa-solid fa-signal" style="color:#3fb950"></i>',
-  'MQTT Broker':     '<i class="fa-solid fa-wifi" style="color:#ff7139"></i>',
-  'MAC Address':     '<i class="fa-solid fa-network-wired" style="color:#8b949e"></i>',
-  'Build Number':    '<i class="fa-solid fa-hashtag" style="color:#a5d6ff"></i>',
-  'Branch':          '<i class="fa-solid fa-code-branch" style="color:#d29922"></i>',
-  'Commit':          '<i class="fa-solid fa-code-commit" style="color:#8b949e"></i>',
-  'Execution Type':  '<i class="fa-solid fa-flask" style="color:#58a6ff"></i>',
-  'Executed By':     '<i class="fa-solid fa-user" style="color:#8b949e"></i>',
-  'Execution ID':    '<i class="fa-solid fa-fingerprint" style="color:#58a6ff"></i>',
-  'Duration':        '<i class="fa-regular fa-clock" style="color:#8b949e"></i>',
-};
-
 const EXEC_LOGO_ALIASES = {
   ANDROID:       '<i class="fa-brands fa-android" style="color:#3ddc84"></i>',
-  IOS:           '<i class="fa-brands fa-apple" style="color:#888"></i>',
+  IOS:           '<i class="fa-brands fa-apple" style="color:#555"></i>',
   WINDOWS:       '<i class="fa-brands fa-windows" style="color:#0078d4"></i>',
-  MAC:           '<i class="fa-brands fa-apple" style="color:#555"></i>',
+  MACOS:         '<i class="fa-brands fa-apple" style="color:#888"></i>',
   LINUX:         '<i class="fa-brands fa-linux" style="color:#fcc624"></i>',
   MQTT:          '<i class="fa-solid fa-wifi" style="color:#ff7139"></i>',
   APPIUM:        '<i class="fa-solid fa-mobile-screen" style="color:#3ddc84"></i>',
@@ -471,6 +447,9 @@ const EXEC_LOGO_ALIASES = {
   TESTNG:        '<i class="fa-solid fa-vial" style="color:#3fb950"></i>',
   JUNIT:         '<i class="fa-solid fa-flask" style="color:#58a6ff"></i>',
   CUCUMBER:      '<i class="fa-solid fa-leaf" style="color:#3fb950"></i>',
+  RESTASSURED:   '<i class="fa-solid fa-code" style="color:#ffa657"></i>',
+  KAFKA:         '<i class="fa-solid fa-server" style="color:#8b949e"></i>',
+  WEB:           '<i class="fa-solid fa-globe" style="color:#58a6ff"></i>',
   CHROME:        '<i class="fa-brands fa-chrome" style="color:#4285f4"></i>',
   EDGE:          '<i class="fa-brands fa-edge" style="color:#0078d4"></i>',
   FIREFOX:       '<i class="fa-brands fa-firefox-browser" style="color:#ff7139"></i>',
@@ -482,32 +461,45 @@ const EXEC_LOGO_ALIASES = {
   AZURE:         '<i class="fa-brands fa-microsoft" style="color:#0078d4"></i>',
   AWS:           '<i class="fa-brands fa-aws" style="color:#ff9900"></i>',
   BROWSERSTACK:  '<i class="fa-solid fa-cloud" style="color:#ff7139"></i>',
-  KAFKA:         '<i class="fa-solid fa-server" style="color:#8b949e"></i>',
-  RESTASSURED:   '<i class="fa-solid fa-code" style="color:#ffa657"></i>',
-  WEB:           '<i class="fa-solid fa-globe" style="color:#58a6ff"></i>',
+  DEVICE:        '<i class="fa-solid fa-mobile-screen" style="color:#58a6ff"></i>',
+  FIRMWARE:      '<i class="fa-solid fa-chip" style="color:#ffa657"></i>',
+  APP:           '<i class="fa-solid fa-tag" style="color:#a5d6a7"></i>',
+  ENVIRONMENT:   '<i class="fa-solid fa-cloud" style="color:#58a6ff"></i>',
+  COUNTRY:       '<i class="fa-solid fa-flag" style="color:#ff7139"></i>',
+  NETWORK:       '<i class="fa-solid fa-network-wired" style="color:#8b949e"></i>',
+  BRANCH:        '<i class="fa-solid fa-code-branch" style="color:#d29922"></i>',
+  BUILD:         '<i class="fa-solid fa-hashtag" style="color:#a5d6ff"></i>',
+  COMMIT:        '<i class="fa-solid fa-code-commit" style="color:#8b949e"></i>',
+  USER:          '<i class="fa-solid fa-user" style="color:#8b949e"></i>',
+  EXECUTION:     '<i class="fa-solid fa-fingerprint" style="color:#58a6ff"></i>',
+  CLOCK:         '<i class="fa-regular fa-clock" style="color:#8b949e"></i>',
+  WIFI:          '<i class="fa-solid fa-wifi" style="color:#3fb950"></i>',
+  SIGNAL:        '<i class="fa-solid fa-signal" style="color:#3fb950"></i>',
+  MICROCHIP:     '<i class="fa-solid fa-microchip" style="color:#58a6ff"></i>',
 };
 
+function resolveExecLogo(logoName) {
+  if (!logoName) return '';
+  if (logoName.startsWith('data:') || logoName.startsWith('http')) {
+    return '<img src="' + esc(logoName) + '" alt=""/>';
+  }
+  const alias = logoName.toUpperCase().replace(/[^A-Z0-9_]/g, '');
+  return EXEC_LOGO_ALIASES[alias] || '';
+}
+
 function renderExecutionSummary() {
-  const keys = Object.keys(execInfo);
+  const keys = Object.keys(execSummary);
   if (!keys.length) return;
   const el = document.getElementById('execSummary');
   const grid = document.getElementById('execGrid');
   el.classList.add('has-data');
 
   grid.innerHTML = keys.map(key => {
-    const value = execInfo[key];
+    const entry = execSummary[key];
+    const value = entry && entry.value;
     if (!value) return '';
 
-    let iconHtml = EXEC_ICONS[key] || '';
-    const logoName = execLogos[key];
-    if (logoName) {
-      const alias = logoName.toUpperCase().replace(/[^A-Z0-9_]/g, '');
-      iconHtml = EXEC_LOGO_ALIASES[alias] || iconHtml;
-      if (!iconHtml && logoName.startsWith('data:') || logoName.startsWith('http')) {
-        iconHtml = `<img src="${logoName}" alt=""/>`;
-      }
-    }
-
+    let iconHtml = resolveExecLogo(entry.logo);
     if (!iconHtml) iconHtml = '<i class="fa-solid fa-circle" style="color:var(--muted);font-size:.45rem"></i>';
 
     return `<div class="exec-row">
