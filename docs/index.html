@@ -404,6 +404,30 @@
         <p><code>ThreadLocal</code> is used for driver, browser, and current-test state — safe for any number of parallel threads in TestNG / JUnit / Cucumber.</p>
       </div>
 
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(88,166,255,.12);color:var(--accent)">
+          <i class="fa-solid fa-list-check"></i>
+        </div>
+        <h3>Gherkin Step Capture</h3>
+        <p>Cucumber adapter captures every Gherkin step with PASSED / FAILED / SKIPPED status. Steps appear inline in the expanded test row with colour-coded icons.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(210,153,34,.12);color:var(--skip)">
+          <i class="fa-solid fa-paperclip"></i>
+        </div>
+        <h3>Logs &amp; Attachments</h3>
+        <p>Call <code>scenario.log()</code> or <code>scenario.attach()</code> in Cucumber — entries appear inline in the report. <code>ReportManager.log()</code> and <code>ReportManager.attachment()</code> available for programmatic use.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(165,214,255,.1);color:var(--accent2)">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <h3>Accurate Duration &amp; Timestamps</h3>
+        <p>Cucumber adapter uses framework-reported duration instead of local calculation. Optional timestamped report filenames via <code>timestampedReport: true</code> in config.</p>
+      </div>
+
     </div>
   </div>
 </section>
@@ -585,8 +609,15 @@
     }</div>
       </div>
       <div class="note">
+        <strong>Gherkin steps:</strong> each <code>Given / When / Then / And</code> is captured with its Cucumber status (PASSED / FAILED / SKIPPED) and displayed inline in the expanded test row.
+      </div>
+      <div class="note">
+        <strong>Scenario logs &amp; attachments:</strong> <code>scenario.log("message")</code> and <code>scenario.attach(bytes, "image/png")</code> are captured automatically. Images render inline; text shows as <code>pre</code> blocks; other types become download links.
+      </div>
+      <div class="note">
         <strong>Report path:</strong> <code>target/open-reporter/report.html</code> by default.
         Change it via <code>outputDir</code> in <code>openreporter.json</code>.
+        Enable timestamped names with <code>"timestampedReport": true</code>.
       </div>
     </div>
 
@@ -605,7 +636,7 @@
       <div class="compat-card">
         <div class="fw-name"><i class="fa-solid fa-leaf" style="color:#3fb950"></i> Cucumber 7</div>
         <div class="fw-class">CucumberPlugin</div>
-        <div class="fw-desc">Implements io.cucumber.plugin.EventListener. Report on TestRunFinished.</div>
+        <div class="fw-desc">Implements ConcurrentEventListener. Captures Gherkin steps, scenario.log() and scenario.attach(). Report on TestRunFinished.</div>
       </div>
       <div class="compat-card">
         <div class="fw-name"><i class="fa-brands fa-chrome" style="color:#4285f4"></i> Selenium / <i class="fa-solid fa-mobile-screen" style="color:#3ddc84"></i> Appium</div>
@@ -629,10 +660,12 @@
       <div class="step-card">
         <div class="step-header"><i class="fa-solid fa-file-code" style="color:var(--accent)"></i> openreporter.json (project root)</div>
         <div class="code-block">{
-  <span class="str">"title"</span>:       <span class="val">"My Project Test Report"</span>,
-  <span class="str">"logo"</span>:        <span class="val">"src/test/resources/logo.png"</span>,
-  <span class="str">"outputDir"</span>:   <span class="val">"target/open-reporter"</span>,
-  <span class="str">"environment"</span>: <span class="val">"QA"</span>
+  <span class="str">"title"</span>:            <span class="val">"My Project Test Report"</span>,
+  <span class="str">"logo"</span>:             <span class="val">"src/test/resources/logo.png"</span>,
+  <span class="str">"outputDir"</span>:        <span class="val">"target/open-reporter"</span>,
+  <span class="str">"environment"</span>:      <span class="val">"QA"</span>,
+  <span class="str">"reportFileName"</span>:   <span class="val">"report.html"</span>,
+  <span class="str">"timestampedReport"</span>: <span class="val">false</span>
 }</div>
         <div class="copy-row">
           <span>Relative paths resolve from project root</span>
@@ -667,6 +700,8 @@ mvn test -Dopenreporter.config=/path/to/file.json</div>
           <tr><td>logo</td><td>Path to project logo (PNG / JPG / SVG / GIF). Embedded as base64, displayed at 60×60 px in the header</td><td>"" (uses default icon)</td></tr>
           <tr><td>outputDir</td><td>Directory where <code>report.html</code> is written</td><td>"target/open-reporter"</td></tr>
           <tr><td>environment</td><td>Environment label shown in the report (e.g. QA, Staging, Prod)</td><td>"—"</td></tr>
+          <tr><td>reportFileName</td><td>Custom report filename (e.g. "my-report.html")</td><td>"report.html"</td></tr>
+          <tr><td>timestampedReport</td><td>Append a <code>_yyyyMMdd_HHmmss</code> timestamp before the extension</td><td>false</td></tr>
         </tbody>
       </table>
     </div>
@@ -701,19 +736,30 @@ mvn test -Dopenreporter.config=/path/to/file.json</div>
       <div class="preview-card">
         <h3><i class="fa-solid fa-table-list"></i> Test Table</h3>
         <ul class="feature-list">
-          <li><i class="fa-solid fa-circle-check"></i> Expandable rows: logs, error, stack trace, screenshot</li>
+          <li><i class="fa-solid fa-circle-check"></i> Expandable rows: steps, logs, attachments, error, stack trace, screenshot</li>
           <li><i class="fa-solid fa-circle-check"></i> Browser brand icon + OS icon per row</li>
           <li><i class="fa-solid fa-circle-check"></i> Live search (name / description / browser / OS)</li>
           <li><i class="fa-solid fa-circle-check"></i> Passed / Failed / Skipped filter buttons</li>
         </ul>
       </div>
       <div class="preview-card">
-        <h3><i class="fa-solid fa-camera"></i> Screenshots</h3>
+        <h3><i class="fa-solid fa-camera"></i> Screenshots &amp; Attachments</h3>
         <ul class="feature-list">
-          <li><i class="fa-solid fa-circle-check"></i> Captured automatically on failure</li>
+          <li><i class="fa-solid fa-circle-check"></i> Screenshot captured automatically on failure</li>
+          <li><i class="fa-solid fa-circle-check"></i> <code>scenario.attach()</code> / <code>ReportManager.attachment()</code> support</li>
+          <li><i class="fa-solid fa-circle-check"></i> Images rendered inline; text shown as pre; other types as download links</li>
           <li><i class="fa-solid fa-circle-check"></i> Embedded as base64 — no external files needed</li>
-          <li><i class="fa-solid fa-circle-check"></i> Thumbnail in expanded row, click to zoom (lightbox)</li>
-          <li><i class="fa-solid fa-circle-check"></i> Works with any WebDriver: browser or Appium mobile</li>
+          <li><i class="fa-solid fa-circle-check"></i> Thumbnail click-to-zoom (lightbox)</li>
+        </ul>
+      </div>
+      <div class="preview-card">
+        <h3><i class="fa-solid fa-list-check"></i> Steps &amp; Logs</h3>
+        <ul class="feature-list">
+          <li><i class="fa-solid fa-circle-check"></i> Gherkin steps captured with PASSED / FAILED / SKIPPED status</li>
+          <li><i class="fa-solid fa-circle-check"></i> <code>scenario.log()</code> entries appear inline in expanded rows</li>
+          <li><i class="fa-solid fa-circle-check"></i> <code>ReportManager.step()</code> / <code>stepPass()</code> / <code>stepFail()</code> for custom step logging</li>
+          <li><i class="fa-solid fa-circle-check"></i> Colour-coded step icons (arrow / checkmark / cross / minus)</li>
+          <li><i class="fa-solid fa-circle-check"></i> Timestamped report filenames for CI traceability</li>
         </ul>
       </div>
       <div class="preview-card">

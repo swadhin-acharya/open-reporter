@@ -165,7 +165,7 @@ public class OpenReporter {
             warnNoCurrent("step(" + description + ")");
             return;
         }
-        m.addStep(new StepModel(description, status));
+        m.addStep(new StepModel(description, status, "LOG"));
     }
 
     /** Adds a log entry to the current test, warning if no test is active. */
@@ -236,6 +236,14 @@ public class OpenReporter {
         return base + "_" + RUN_TIMESTAMP + ext;
     }
 
+    private String formatDuration(long ms) {
+        long totalSec = ms / 1000;
+        long h = totalSec / 3600;
+        long m = (totalSec % 3600) / 60;
+        long s = totalSec % 60;
+        return String.format("%02d:%02d:%02d", h, m, s);
+    }
+
     private String readTemplate() throws Exception {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(TEMPLATE)) {
             if (is == null) throw new IllegalStateException(TEMPLATE + " not found on classpath");
@@ -250,8 +258,7 @@ public class OpenReporter {
         long total   = results.size();
         double passRate = total > 0 ? (passed * 100.0 / total) : 0;
         long totalMs    = results.stream().mapToLong(TestResultModel::getDurationMs).sum();
-        String duration = totalMs >= 1000
-                ? String.format("%.1fs", totalMs / 1000.0) : totalMs + "ms";
+        String duration = formatDuration(totalMs);
         String generated = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         String jsonData  = new ObjectMapper().writeValueAsString(results);
         String env       = cfg.getEnvironment().isEmpty() ? "—" : cfg.getEnvironment();

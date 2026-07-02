@@ -158,14 +158,23 @@
     .stack-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;font-family:"Courier New",monospace;font-size:.72rem;color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:160px;overflow-y:auto;margin-top:.5rem}
     .stack-toggle{font-size:.74rem;color:var(--accent);cursor:pointer;margin-top:.4rem;display:inline-block}
 
-    /* ── Steps ───────────────────────────────────────────────────────────── */
-    .step-list{list-style:none;margin:.35rem 0}
-    .step-item{display:flex;align-items:flex-start;gap:.55rem;padding:.38rem .75rem;margin-bottom:.2rem;border-radius:6px;font-size:.82rem;background:var(--surface);border-left:3px solid var(--border)}
-    .step-item.si{border-left-color:var(--accent)}.step-item.sp{border-left-color:var(--pass)}.step-item.sf{border-left-color:var(--fail)}
-    .step-n{font-size:.65rem;color:var(--muted);min-width:16px;padding-top:.2rem;flex-shrink:0;font-variant-numeric:tabular-nums}
-    .step-ic{font-size:.8rem;min-width:12px;flex-shrink:0}
-    .step-item.si .step-ic{color:var(--accent)}.step-item.sp .step-ic{color:var(--pass)}.step-item.sf .step-ic{color:var(--fail)}
-    .step-txt{color:var(--text);flex:1;line-height:1.5}
+    /* ── Execution steps (GHERKIN) & Framework logs (LOG) ──────────────── */
+    .gherkin-step{display:flex;align-items:center;gap:.65rem;padding:.55rem .85rem;margin-bottom:.25rem;border-radius:8px;background:var(--surface);border-left:4px solid var(--border);cursor:default;transition:background .12s}
+    .gherkin-step:hover{background:var(--surface2)}
+    .gherkin-step.gherkin-passed{border-left-color:var(--pass)}
+    .gherkin-step.gherkin-failed{border-left-color:var(--fail)}
+    .gherkin-step.gherkin-skipped{border-left-color:var(--skip)}
+    .gherkin-icon{font-size:1.05rem;flex-shrink:0;line-height:1}
+    .gherkin-passed .gherkin-icon{color:var(--pass)}
+    .gherkin-failed .gherkin-icon{color:var(--fail)}
+    .gherkin-skipped .gherkin-icon{color:var(--skip)}
+    .gherkin-text{flex:1;font-size:.875rem;font-weight:500;color:var(--text);line-height:1.4}
+    .gherkin-dur{font-size:.73rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+    .gherkin-logs{padding:.25rem 0 .35rem 2.4rem;display:grid;gap:.1rem}
+    .gherkin-log{display:flex;align-items:flex-start;gap:.5rem;padding:.22rem .5rem;font-size:.8rem;color:var(--muted);line-height:1.45;border-radius:4px}
+    .gherkin-log:hover{background:var(--surface)}
+    .log-icon{font-size:.82rem;flex-shrink:0;min-width:14px;text-align:center;padding-top:.05rem}
+    .log-icon.log-info{color:var(--accent)}.log-icon.log-pass{color:var(--pass)}.log-icon.log-fail{color:var(--fail)}.log-icon.log-warn{color:var(--skip)}
     .attachment-list{display:grid;gap:.75rem;margin-top:.35rem}
     .attachment-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem}
     .attachment-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.55rem;font-size:.8rem;color:var(--text);font-weight:600}
@@ -380,6 +389,9 @@ function browserIcon(browser) {
   if (b.includes('ie') || b.includes('internet explorer'))
                                return '<i class="fa-brands fa-internet-explorer" style="color:#1ebbee"></i>';
   if (b.includes('opera'))    return '<i class="fa-brands fa-opera"             style="color:#ff1b2d"></i>';
+  if (b.includes('android'))  return '<i class="fa-brands fa-android"           style="color:#3ddc84"></i>';
+  if (b.includes('appium'))   return '<i class="fa-solid fa-mobile-screen"      style="color:#3ddc84"></i>';
+  if (b.includes('mqtt'))     return '<i class="fa-solid fa-wifi"               style="color:#ff7139"></i>';
   return '<i class="fa-solid fa-globe" style="color:#8b949e"></i>';
 }
 
@@ -390,11 +402,14 @@ function osIcon(os, browser) {
   if (o.includes('windows'))                                          return '<i class="fa-brands fa-windows" style="color:#0078d4"></i>';
   if (o.includes('os x')||o.includes('macos')||o.includes('ventura')||o.includes('monterey')||o.includes('sonoma')||o.includes('sequoia'))
                                                                       return '<i class="fa-brands fa-apple"   style="color:#888"></i>';
-  if (o.includes('ios') || o.includes('ipad'))                        return '<i class="fa-brands fa-apple"   style="color:#555"></i>';
+  if (o.includes('ios') || o.includes('ipad') || o.includes('iphone'))
+                                                                      return '<i class="fa-brands fa-apple"   style="color:#555"></i>';
   if (o.includes('android'))                                          return '<i class="fa-brands fa-android" style="color:#3ddc84"></i>';
   if (o.includes('linux') || o.includes('ubuntu'))                    return '<i class="fa-brands fa-linux"   style="color:#fcc624"></i>';
-  // Infer from browser when OS field is empty
+  // Infer from browser/device when OS field is empty
   if (b.includes('safari'))  return '<i class="fa-brands fa-apple"   style="color:#888"></i>';
+  if (b.includes('android')) return '<i class="fa-brands fa-android" style="color:#3ddc84"></i>';
+  if (b.includes('appium'))  return '<i class="fa-solid fa-mobile-screen" style="color:#3ddc84"></i>';
   return '<i class="fa-solid fa-desktop" style="color:#8b949e"></i>';
 }
 
@@ -564,20 +579,50 @@ function render() {
       bodyContent += `</div>`;
     }
 
-    if (t.steps && t.steps.length) {
-      const icons = {
-        INFO:'<i class="fa-solid fa-arrow-right-long"></i>', PASS:'<i class="fa-solid fa-check"></i>', PASSED:'<i class="fa-solid fa-check"></i>',
-        FAIL:'<i class="fa-solid fa-xmark"></i>', FAILED:'<i class="fa-solid fa-xmark"></i>',
-        SKIPPED:'<i class="fa-solid fa-minus"></i>', PENDING:'<i class="fa-solid fa-hourglass-half"></i>', UNDEFINED:'<i class="fa-solid fa-question"></i>', AMBIGUOUS:'<i class="fa-solid fa-triangle-exclamation"></i>'
-      };
-      const cls   = {INFO:'si',PASS:'sp',PASSED:'sp',FAIL:'sf',FAILED:'sf',SKIPPED:'si',PENDING:'si',UNDEFINED:'si',AMBIGUOUS:'si'};
-      bodyContent += `<div class="section-lbl"><i class="fa-solid fa-list-check"></i> Steps (${t.steps.length})</div>
-        <ol class="step-list">${t.steps.map((s,n)=>`
-        <li class="step-item ${cls[s.status]||'si'}">
-          <span class="step-n">${n+1}</span>
-          <span class="step-ic">${icons[s.status]||icons.INFO}</span>
-          <span class="step-txt">${esc(s.description)}</span>
-        </li>`).join('')}</ol>`;
+    // Separate GHERKIN execution steps from LOG framework steps
+    const gherkinGroups = [];
+    const orphanLogs = [];
+    for (const s of t.steps || []) {
+      if (s.type === 'GHERKIN') {
+        gherkinGroups.push({ step: s, logs: [] });
+      } else if (gherkinGroups.length > 0) {
+        gherkinGroups[gherkinGroups.length - 1].logs.push(s);
+      } else {
+        orphanLogs.push(s);
+      }
+    }
+
+    if (gherkinGroups.length || orphanLogs.length) {
+      bodyContent += `<div class="section-lbl"><i class="fa-solid fa-list-check"></i> Execution Steps</div>`;
+
+      for (const g of gherkinGroups) {
+        const gs = g.step;
+        const gStatus = gs.status || 'PASSED';
+        const gIcon = gStatus === 'PASSED' ? '\u2705' : gStatus === 'FAILED' ? '\u274C' : '\u23F8\uFE0F';
+        const gDur = gs.durationMs != null ? fmt(gs.durationMs) : '';
+
+        bodyContent += `<div class="gherkin-step gherkin-${gStatus.toLowerCase()}">
+          <span class="gherkin-icon">${gIcon}</span>
+          <span class="gherkin-text">${esc(gs.description)}</span>
+          ${gDur ? `<span class="gherkin-dur">${gDur}</span>` : ''}
+        </div>`;
+
+        if (g.logs.length) {
+          bodyContent += `<div class="gherkin-logs">${g.logs.map(l => {
+            const lIcon = l.status === 'PASS' ? '\u2713' : l.status === 'FAIL' ? '\u2716' : '\u2139';
+            const lCls = l.status === 'PASS' ? 'log-pass' : l.status === 'FAIL' ? 'log-fail' : 'log-info';
+            return `<div class="gherkin-log"><span class="log-icon ${lCls}">${lIcon}</span><span>${esc(l.description)}</span></div>`;
+          }).join('')}</div>`;
+        }
+      }
+
+      if (orphanLogs.length) {
+        bodyContent += `<div class="gherkin-logs" style="margin-top:.35rem">${orphanLogs.map(l => {
+          const lIcon = l.status === 'PASS' ? '\u2713' : l.status === 'FAIL' ? '\u2716' : '\u2139';
+          const lCls = l.status === 'PASS' ? 'log-pass' : l.status === 'FAIL' ? 'log-fail' : 'log-info';
+          return `<div class="gherkin-log"><span class="log-icon ${lCls}">${lIcon}</span><span>${esc(l.description)}</span></div>`;
+        }).join('')}</div>`;
+      }
     }
     if (t.logs && t.logs.length) {
       bodyContent += `<div class="section-lbl"><i class="fa-solid fa-list-ul"></i> Logs</div>
@@ -770,8 +815,12 @@ function exportPDF() {
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
 function fmt(ms) {
-  if (!ms && ms!==0) return '—';
-  return ms >= 1000 ? (ms/1000).toFixed(2)+'s' : ms+'ms';
+  if (!ms && ms !== 0) return '—';
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 function cap(s) { return s ? s.charAt(0).toUpperCase()+s.slice(1) : s; }
 function esc(s) {

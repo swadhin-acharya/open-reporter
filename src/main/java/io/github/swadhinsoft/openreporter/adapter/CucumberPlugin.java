@@ -10,6 +10,7 @@ import io.cucumber.plugin.event.TestRunFinished;
 import io.cucumber.plugin.event.TestStepFinished;
 import io.cucumber.plugin.event.WriteEvent;
 import io.github.swadhinsoft.openreporter.OpenReporter;
+import io.github.swadhinsoft.openreporter.model.StepModel;
 import io.github.swadhinsoft.openreporter.model.TestResultModel;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -94,10 +95,13 @@ public class CucumberPlugin implements ConcurrentEventListener {
         PickleStepTestStep step = (PickleStepTestStep) event.getTestStep();
         String description = step.getStep().getKeyword() + step.getStep().getText();
         String rawStatus = event.getResult().getStatus().name();
-        REPORTER.step(description + statusSuffix(rawStatus));
-        TestResultModel model = REPORTER.getCurrentTest();
-        if (model != null && model.getSteps() != null && !model.getSteps().isEmpty()) {
-            model.getSteps().get(model.getSteps().size() - 1).setStatus(rawStatus);
+        Long stepDuration = event.getResult().getDuration() != null
+                ? event.getResult().getDuration().toMillis()
+                : null;
+
+        TestResultModel test = REPORTER.getCurrentTest();
+        if (test != null) {
+            test.addStep(new StepModel(description, rawStatus, "GHERKIN", stepDuration));
         }
     }
 
@@ -198,10 +202,6 @@ public class CucumberPlugin implements ConcurrentEventListener {
 
     private String scenarioKey(io.cucumber.plugin.event.TestCaseEvent event) {
         return event.getTestCase().getId() + ":" + Thread.currentThread().getId();
-    }
-
-    private String statusSuffix(String status) {
-        return "PASSED".equals(status) || "FAILED".equals(status) ? "" : " [" + status.toLowerCase() + "]";
     }
 
     private boolean isText(String mimeType) {
