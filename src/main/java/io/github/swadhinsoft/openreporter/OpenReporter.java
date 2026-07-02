@@ -263,18 +263,24 @@ public class OpenReporter {
         String jsonData  = new ObjectMapper().writeValueAsString(results);
         String env       = cfg.getEnvironment().isEmpty() ? "—" : cfg.getEnvironment();
 
+        ObjectMapper mapper = new ObjectMapper();
+        String execInfoJson  = mapper.writeValueAsString(cfg.getExecutionInfo());
+        String execLogosJson = mapper.writeValueAsString(cfg.getExecutionLogos());
+
         return tpl
-                .replace("{{TITLE}}",          cfg.getTitle())
-                .replace("{{GENERATED_AT}}",   generated)
-                .replace("{{ENVIRONMENT}}",    env)
-                .replace("{{TOTAL}}",          String.valueOf(total))
-                .replace("{{PASSED}}",         String.valueOf(passed))
-                .replace("{{FAILED}}",         String.valueOf(failed))
-                .replace("{{SKIPPED}}",        String.valueOf(skipped))
-                .replace("{{PASS_RATE}}",      String.format("%.1f", passRate))
-                .replace("{{TOTAL_DURATION}}", duration)
-                .replace("{{LOGO_ELEMENT}}",   buildLogoElement(cfg.getLogo()))
-                .replace("{{TEST_DATA_JSON}}", jsonData);
+                .replace("{{TITLE}}",             cfg.getTitle())
+                .replace("{{GENERATED_AT}}",      generated)
+                .replace("{{ENVIRONMENT}}",       env)
+                .replace("{{TOTAL}}",             String.valueOf(total))
+                .replace("{{PASSED}}",            String.valueOf(passed))
+                .replace("{{FAILED}}",            String.valueOf(failed))
+                .replace("{{SKIPPED}}",           String.valueOf(skipped))
+                .replace("{{PASS_RATE}}",         String.format("%.1f", passRate))
+                .replace("{{TOTAL_DURATION}}",    duration)
+                .replace("{{LOGO_ELEMENT}}",      buildLogoElement(cfg.getLogo()))
+                .replace("{{TEST_DATA_JSON}}",    jsonData)
+                .replace("{{EXECUTION_INFO_JSON}}",  execInfoJson)
+                .replace("{{EXECUTION_LOGOS_JSON}}", execLogosJson);
     }
 
     private String buildLogoElement(String path) {

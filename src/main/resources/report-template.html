@@ -203,6 +203,19 @@
     .modal-close{position:fixed;top:1.25rem;right:1.25rem;width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:50%;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
     .modal-close:hover{background:var(--surface2)}
 
+    /* ── Execution Summary ──────────────────────────────────────────────── */
+    .exec-summary{display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem 1.75rem;margin-bottom:1.75rem}
+    .exec-summary.has-data{display:block}
+    .exec-title{font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:1rem}
+    .exec-grid{display:grid;grid-template-columns:1fr 1fr;gap:.35rem 2rem}
+    .exec-row{display:flex;align-items:center;gap:.6rem;padding:.28rem .5rem;border-radius:6px;transition:background .12s;min-height:28px}
+    .exec-row:hover{background:var(--surface2)}
+    .exec-icon{width:18px;flex-shrink:0;font-size:.9rem;text-align:center;line-height:1;opacity:.8}
+    .exec-icon img{width:16px;height:16px;object-fit:contain;display:block}
+    .exec-label{font-size:.78rem;color:var(--muted);min-width:100px;flex-shrink:0;font-weight:500}
+    .exec-value{font-size:.82rem;color:var(--text);font-weight:500;line-height:1.4}
+    @media(max-width:768px){.exec-grid{grid-template-columns:1fr}}
+
     /* ── Empty State ──────────────────────────────────────────────────────── */
     .empty{text-align:center;padding:3.5rem 2rem;color:var(--muted);font-size:.9rem}
     .empty-icon{font-size:2.5rem;margin-bottom:.75rem}
@@ -242,6 +255,12 @@
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
     </div>
   </div>
+</div>
+
+<!-- ── Execution Summary ─────────────────────────────────────────────── -->
+<div class="exec-summary" id="execSummary">
+  <div class="exec-title"><i class="fa-solid fa-circle-info"></i>&nbsp; Execution Summary</div>
+  <div class="exec-grid" id="execGrid"></div>
 </div>
 
 <!-- ── Main ─────────────────────────────────────────────────────────────── -->
@@ -351,6 +370,8 @@
 <script>
 /* ── Injected data ──────────────────────────────────────────────────────── */
 const testData = {{TEST_DATA_JSON}};
+const execInfo = {{EXECUTION_INFO_JSON}};
+const execLogos = {{EXECUTION_LOGOS_JSON}};
 
 /* ── State ──────────────────────────────────────────────────────────────── */
 let activeFilter = 'ALL';
@@ -413,8 +434,93 @@ function osIcon(os, browser) {
   return '<i class="fa-solid fa-desktop" style="color:#8b949e"></i>';
 }
 
+/* ── Execution Summary ──────────────────────────────────────────────────── */
+const EXEC_ICONS = {
+  'Platform':        '<i class="fa-brands fa-android" style="color:#3ddc84"></i>',
+  'OS':              '<i class="fa-brands fa-windows" style="color:#0078d4"></i>',
+  'Device':          '<i class="fa-solid fa-mobile-screen" style="color:#58a6ff"></i>',
+  'Device Model':    '<i class="fa-solid fa-microchip" style="color:#58a6ff"></i>',
+  'Phone':           '<i class="fa-solid fa-mobile-screen-button" style="color:#58a6ff"></i>',
+  'App Version':     '<i class="fa-solid fa-tag" style="color:#a5d6a7"></i>',
+  'Firmware Version':'<i class="fa-solid fa-chip" style="color:#ffa657"></i>',
+  'Environment':     '<i class="fa-solid fa-cloud" style="color:#58a6ff"></i>',
+  'Country':         '<i class="fa-solid fa-flag" style="color:#ff7139"></i>',
+  'Router':          '<i class="fa-solid fa-wifi" style="color:#3fb950"></i>',
+  'WiFi Band':       '<i class="fa-solid fa-signal" style="color:#3fb950"></i>',
+  'MQTT Broker':     '<i class="fa-solid fa-wifi" style="color:#ff7139"></i>',
+  'MAC Address':     '<i class="fa-solid fa-network-wired" style="color:#8b949e"></i>',
+  'Build Number':    '<i class="fa-solid fa-hashtag" style="color:#a5d6ff"></i>',
+  'Branch':          '<i class="fa-solid fa-code-branch" style="color:#d29922"></i>',
+  'Commit':          '<i class="fa-solid fa-code-commit" style="color:#8b949e"></i>',
+  'Execution Type':  '<i class="fa-solid fa-flask" style="color:#58a6ff"></i>',
+  'Executed By':     '<i class="fa-solid fa-user" style="color:#8b949e"></i>',
+  'Execution ID':    '<i class="fa-solid fa-fingerprint" style="color:#58a6ff"></i>',
+  'Duration':        '<i class="fa-regular fa-clock" style="color:#8b949e"></i>',
+};
+
+const EXEC_LOGO_ALIASES = {
+  ANDROID:       '<i class="fa-brands fa-android" style="color:#3ddc84"></i>',
+  IOS:           '<i class="fa-brands fa-apple" style="color:#888"></i>',
+  WINDOWS:       '<i class="fa-brands fa-windows" style="color:#0078d4"></i>',
+  MAC:           '<i class="fa-brands fa-apple" style="color:#555"></i>',
+  LINUX:         '<i class="fa-brands fa-linux" style="color:#fcc624"></i>',
+  MQTT:          '<i class="fa-solid fa-wifi" style="color:#ff7139"></i>',
+  APPIUM:        '<i class="fa-solid fa-mobile-screen" style="color:#3ddc84"></i>',
+  SELENIUM:      '<i class="fa-brands fa-chrome" style="color:#4285f4"></i>',
+  JAVA:          '<i class="fa-brands fa-java" style="color:#f89820"></i>',
+  TESTNG:        '<i class="fa-solid fa-vial" style="color:#3fb950"></i>',
+  JUNIT:         '<i class="fa-solid fa-flask" style="color:#58a6ff"></i>',
+  CUCUMBER:      '<i class="fa-solid fa-leaf" style="color:#3fb950"></i>',
+  CHROME:        '<i class="fa-brands fa-chrome" style="color:#4285f4"></i>',
+  EDGE:          '<i class="fa-brands fa-edge" style="color:#0078d4"></i>',
+  FIREFOX:       '<i class="fa-brands fa-firefox-browser" style="color:#ff7139"></i>',
+  SAFARI:        '<i class="fa-brands fa-safari" style="color:#006cff"></i>',
+  DOCKER:        '<i class="fa-brands fa-docker" style="color:#2496ed"></i>',
+  JENKINS:       '<i class="fa-brands fa-jenkins" style="color:#d24939"></i>',
+  GITHUB:        '<i class="fa-brands fa-github" style="color:var(--text)"></i>',
+  GITLAB:        '<i class="fa-brands fa-gitlab" style="color:#fc6d26"></i>',
+  AZURE:         '<i class="fa-brands fa-microsoft" style="color:#0078d4"></i>',
+  AWS:           '<i class="fa-brands fa-aws" style="color:#ff9900"></i>',
+  BROWSERSTACK:  '<i class="fa-solid fa-cloud" style="color:#ff7139"></i>',
+  KAFKA:         '<i class="fa-solid fa-server" style="color:#8b949e"></i>',
+  RESTASSURED:   '<i class="fa-solid fa-code" style="color:#ffa657"></i>',
+  WEB:           '<i class="fa-solid fa-globe" style="color:#58a6ff"></i>',
+};
+
+function renderExecutionSummary() {
+  const keys = Object.keys(execInfo);
+  if (!keys.length) return;
+  const el = document.getElementById('execSummary');
+  const grid = document.getElementById('execGrid');
+  el.classList.add('has-data');
+
+  grid.innerHTML = keys.map(key => {
+    const value = execInfo[key];
+    if (!value) return '';
+
+    let iconHtml = EXEC_ICONS[key] || '';
+    const logoName = execLogos[key];
+    if (logoName) {
+      const alias = logoName.toUpperCase().replace(/[^A-Z0-9_]/g, '');
+      iconHtml = EXEC_LOGO_ALIASES[alias] || iconHtml;
+      if (!iconHtml && logoName.startsWith('data:') || logoName.startsWith('http')) {
+        iconHtml = `<img src="${logoName}" alt=""/>`;
+      }
+    }
+
+    if (!iconHtml) iconHtml = '<i class="fa-solid fa-circle" style="color:var(--muted);font-size:.45rem"></i>';
+
+    return `<div class="exec-row">
+      <span class="exec-icon">${iconHtml}</span>
+      <span class="exec-label">${esc(key)}</span>
+      <span class="exec-value">${esc(value)}</span>
+    </div>`;
+  }).join('');
+}
+
 /* ── Init ────────────────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
+  renderExecutionSummary();
   initChart();
   initBrowserBars();
   initSuiteBreakdown();
