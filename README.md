@@ -8,7 +8,7 @@ One dependency. Beautiful, self-contained HTML reports for TestNG, JUnit 5, and 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Java 11+](https://img.shields.io/badge/Java-11%2B-orange.svg)](https://adoptium.net)
 
-> **Latest:** `v1.1.0` · [Branches](#branches--version-history) · [Changelog](#version-history)
+> **Latest:** `v1.1.1` · [Branches](#branches--version-history) · [Changelog](#version-history)
 
 ---
 
@@ -50,14 +50,14 @@ Add the dependency:
 <dependency>
   <groupId>com.github.swadhinsoft</groupId>
   <artifactId>open-reporter</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
   <scope>test</scope>
 </dependency>
 ```
 
 **Gradle (Kotlin DSL):**
 ```kotlin
-testImplementation("com.github.swadhinsoft:open-reporter:1.1.0")
+testImplementation("com.github.swadhinsoft:open-reporter:1.1.1")
 ```
 
 > Need an older version? See [Branches & Version History](#branches--version-history).
@@ -175,7 +175,8 @@ Open it in any browser. No web server needed.
 
 ## Step Logging (v1.1+)
 
-Document what your test does with named, numbered steps shown directly in the report:
+Document what your test does with named, numbered steps shown directly in the report.
+Cucumber scenarios are captured automatically from Gherkin steps when using `CucumberPlugin`.
 
 ```java
 @Test
@@ -207,14 +208,30 @@ Steps appear in the expanded test row, numbered, before the logs section.
 
 ---
 
+## Report File Naming
+
+By default OpenReporter writes `target/open-reporter/report.html`. Configure a fixed file name or timestamped report in `openreporter.json`:
+
+```json
+{
+  "outputDir": "target/open-reporter",
+  "reportFileName": "report.html",
+  "timestampedReport": true
+}
+```
+
+With timestamping enabled the output is named like `report_20260702_183015.html`.
+
+---
+
 ## Branches & Version History
 
 Each version has its own long-lived branch so you can pin to any release:
 
 | Branch | Version | Maven dependency |
 |--------|---------|-----------------|
-| [`main`](https://github.com/swadhinsoft/open-reporter/tree/main) | Latest (`1.1.0`) | `1.1.0` |
-| [`v1.1`](https://github.com/swadhinsoft/open-reporter/tree/v1.1) | 1.1.0 | `1.1.0` |
+| [`main`](https://github.com/swadhinsoft/open-reporter/tree/main) | Latest (`1.1.1`) | `1.1.1` |
+| [`v1.1`](https://github.com/swadhinsoft/open-reporter/tree/v1.1) | 1.1.x | `1.1.1` |
 | [`v1.0`](https://github.com/swadhinsoft/open-reporter/tree/v1.0) | 1.0.0 | `1.0.0` |
 
 To use a specific branch via JitPack instead of a tag:
@@ -225,6 +242,12 @@ To use a specific branch via JitPack instead of a tag:
 ---
 
 ## Version History
+
+### v1.1.1 — 2026-07-02
+- **Cucumber runner fix** — subscribes every Cucumber event publisher so TestNG child runners are observed
+- **Automatic Cucumber steps** — captures Given/When/Then from `TestStepFinished`
+- **Cucumber logs and attachments** — handles `WriteEvent` and `EmbedEvent`, including screenshots/text/JSON/XML/logs
+- **Report naming** — adds `reportFileName` and `timestampedReport`
 
 ### v1.1.0 — 2026-03-30
 - **Step logging** — `step()`, `stepPass()`, `stepFail()` API; numbered steps with coloured icons in expanded test rows
@@ -248,4 +271,4 @@ To use a specific branch via JitPack instead of a tag:
 
 ## License
 
-MIT © [Swadhin Acharya](https://www.linkedin.com/in/swadhin-acharya-a4053b161/) · [swadhinsoft](https://github.com/swadhinsoft)
+MIT License

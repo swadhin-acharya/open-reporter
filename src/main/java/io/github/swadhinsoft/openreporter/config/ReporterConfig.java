@@ -23,7 +23,9 @@ import java.io.InputStream;
  *   "title":       "My Test Report",
  *   "logo":        "src/test/resources/logo.png",
  *   "outputDir":   "target/open-reporter",
- *   "environment": "QA"
+ *   "environment": "QA",
+ *   "reportFileName": "report.html",
+ *   "timestampedReport": false
  * }
  * }</pre>
  */
@@ -35,6 +37,8 @@ public class ReporterConfig {
     private String logo        = "";
     private String outputDir   = "target/open-reporter";
     private String environment = "";
+    private String reportFileName = "report.html";
+    private boolean timestampedReport = false;
 
     private ReporterConfig() { load(); }
 
@@ -46,6 +50,8 @@ public class ReporterConfig {
     public String getLogo()        { return logo; }
     public String getOutputDir()   { return outputDir; }
     public String getEnvironment() { return environment; }
+    public String getReportFileName() { return reportFileName; }
+    public boolean isTimestampedReport() { return timestampedReport; }
 
     // ── Private ───────────────────────────────────────────────────────────────
 
@@ -57,6 +63,8 @@ public class ReporterConfig {
             logo        = root.path("logo").asText(logo);
             outputDir   = root.path("outputDir").asText(outputDir);
             environment = root.path("environment").asText(environment);
+            reportFileName = root.path("reportFileName").asText(reportFileName);
+            timestampedReport = root.path("timestampedReport").asBoolean(timestampedReport);
         } catch (Exception e) {
             System.err.println("[OpenReporter] Config load warning — using defaults: " + e.getMessage());
         }

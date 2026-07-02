@@ -166,6 +166,12 @@
     .step-ic{font-size:.8rem;min-width:12px;flex-shrink:0}
     .step-item.si .step-ic{color:var(--accent)}.step-item.sp .step-ic{color:var(--pass)}.step-item.sf .step-ic{color:var(--fail)}
     .step-txt{color:var(--text);flex:1;line-height:1.5}
+    .attachment-list{display:grid;gap:.75rem;margin-top:.35rem}
+    .attachment-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem}
+    .attachment-head{display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.55rem;font-size:.8rem;color:var(--text);font-weight:600}
+    .attachment-type{font-size:.68rem;color:var(--muted);font-family:"Courier New",monospace;font-weight:400}
+    .attachment-text{white-space:pre-wrap;word-break:break-word;max-height:220px;overflow:auto;color:var(--muted);font-family:"Courier New",monospace;font-size:.75rem;line-height:1.45}
+    .attachment-link{color:var(--accent);font-size:.8rem;text-decoration:none}.attachment-link:hover{text-decoration:underline}
     /* ── Copy inline button ──────────────────────────────────────────────── */
     .copy-inline{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;padding:.1rem .3rem;border-radius:4px;transition:color .15s;margin-left:.4rem;vertical-align:middle}.copy-inline:hover{color:var(--accent)}
     /* ── Suite breakdown table ───────────────────────────────────────────── */
@@ -188,13 +194,9 @@
     .modal-close{position:fixed;top:1.25rem;right:1.25rem;width:36px;height:36px;background:var(--surface);border:1px solid var(--border);border-radius:50%;color:var(--text);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
     .modal-close:hover{background:var(--surface2)}
 
-    /* ── Empty / Footer ───────────────────────────────────────────────────── */
+    /* ── Empty State ──────────────────────────────────────────────────────── */
     .empty{text-align:center;padding:3.5rem 2rem;color:var(--muted);font-size:.9rem}
     .empty-icon{font-size:2.5rem;margin-bottom:.75rem}
-    .footer{text-align:center;padding:1.5rem 1.25rem;color:var(--muted);font-size:.75rem;border-top:1px solid var(--border);margin-top:2rem;line-height:1.8}
-    .footer a{color:var(--accent);text-decoration:none}.footer a:hover{text-decoration:underline}
-    .footer-chai{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;padding:4px 16px;border-radius:10px;text-decoration:none!important;border:1px solid #e5e7eb;box-shadow:0 2px 6px rgba(0,0,0,.08);transition:transform .15s,box-shadow .15s;vertical-align:middle}.footer-chai:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.12)}.footer-chai img{height:18px;object-fit:contain;margin-bottom:2px}.footer-chai span{color:#6b7280;font-size:.65rem;font-weight:600;font-family:sans-serif}
-    .footer-gumroad{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .85rem;border-radius:10px;background:#000;color:#ff90e8!important;font-weight:700;font-size:.72rem;text-decoration:none!important;transition:transform .15s,opacity .15s;vertical-align:middle;letter-spacing:.01em}.footer-gumroad:hover{transform:translateY(-1px);opacity:.9}
 
     /* ── Scrollbar ────────────────────────────────────────────────────────── */
     ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--surface)}
@@ -329,18 +331,6 @@
   </div>
 
 </div><!-- /main -->
-
-<div class="footer">
-  <strong style="color:var(--accent)">OpenReporter</strong> &mdash; {{GENERATED_AT}} &mdash; {{ENVIRONMENT}}<br/>
-  Developed by <a href="https://www.linkedin.com/in/swadhin-acharya-a4053b161/" target="_blank" rel="noopener">Swadhin Acharya</a>
-  &nbsp;&middot;&nbsp;
-  <a class="footer-chai" href="https://chai4.me/swadhin" target="_blank" rel="noopener" title="Support on Chai4Me">
-    <img src="https://chai4.me/icons/wordmark.png" alt="Chai4Me"/>
-    <span>@swadhin</span>
-  </a>
-  &nbsp;
-  <a class="footer-gumroad" href="https://swadhin41.gumroad.com/l/openreport" target="_blank" rel="noopener" title="Support on Gumroad">&#128722; Gumroad</a>
-</div>
 
 <!-- Screenshot modal -->
 <div class="modal" id="modal" onclick="closeModal(event)">
@@ -559,7 +549,8 @@ function render() {
     const id  = 'r' + i;
     const dur = fmt(t.durationMs);
     const open = openRows.has(id);
-    const hasDetails = t.errorMessage || t.screenshotBase64 || (t.logs && t.logs.length) || (t.steps && t.steps.length);
+    const hasAttachments = t.attachments && t.attachments.length;
+    const hasDetails = t.errorMessage || t.screenshotBase64 || hasAttachments || (t.logs && t.logs.length) || (t.steps && t.steps.length);
     const bIcon = browserIcon(t.browser);
     const oIcon = osIcon(t.os, t.browser);
 
@@ -574,8 +565,12 @@ function render() {
     }
 
     if (t.steps && t.steps.length) {
-      const icons = {INFO:'<i class="fa-solid fa-arrow-right-long"></i>',PASS:'<i class="fa-solid fa-check"></i>',FAIL:'<i class="fa-solid fa-xmark"></i>'};
-      const cls   = {INFO:'si',PASS:'sp',FAIL:'sf'};
+      const icons = {
+        INFO:'<i class="fa-solid fa-arrow-right-long"></i>', PASS:'<i class="fa-solid fa-check"></i>', PASSED:'<i class="fa-solid fa-check"></i>',
+        FAIL:'<i class="fa-solid fa-xmark"></i>', FAILED:'<i class="fa-solid fa-xmark"></i>',
+        SKIPPED:'<i class="fa-solid fa-minus"></i>', PENDING:'<i class="fa-solid fa-hourglass-half"></i>', UNDEFINED:'<i class="fa-solid fa-question"></i>', AMBIGUOUS:'<i class="fa-solid fa-triangle-exclamation"></i>'
+      };
+      const cls   = {INFO:'si',PASS:'sp',PASSED:'sp',FAIL:'sf',FAILED:'sf',SKIPPED:'si',PENDING:'si',UNDEFINED:'si',AMBIGUOUS:'si'};
       bodyContent += `<div class="section-lbl"><i class="fa-solid fa-list-check"></i> Steps (${t.steps.length})</div>
         <ol class="step-list">${t.steps.map((s,n)=>`
         <li class="step-item ${cls[s.status]||'si'}">
@@ -599,7 +594,10 @@ function render() {
         <button class="copy-inline" data-copy="st${i}" onclick="copyText('st${i}')" title="Copy stack trace"><i class="fa-regular fa-copy"></i></button>
         <div class="stack-box" id="st${i}" style="display:none">${esc(t.stackTrace)}</div>`;
     }
-    if (t.screenshotBase64) {
+    if (hasAttachments) {
+      bodyContent += `<div class="section-lbl"><i class="fa-solid fa-paperclip"></i> Attachments (${t.attachments.length})</div>
+        <div class="attachment-list">${t.attachments.map((a,n)=>renderAttachment(a,n)).join('')}</div>`;
+    } else if (t.screenshotBase64) {
       bodyContent += `<div class="section-lbl"><i class="fa-solid fa-camera"></i> Screenshot</div>
         <img class="ss-thumb" src="${t.screenshotBase64}" alt="screenshot"
              onclick="openModal(event,'${t.screenshotBase64}')"/>`;
@@ -641,6 +639,26 @@ function toggleStack(id) {
   const vis = el.style.display === 'none';
   el.style.display = vis ? 'block' : 'none';
   el.previousElementSibling.innerHTML = vis ? '&#9662; Hide stack trace' : '&#9656; Show stack trace';
+}
+
+function renderAttachment(a, n) {
+  const name = a.name || `Attachment ${n+1}`;
+  const type = a.mimeType || 'application/octet-stream';
+  const content = a.content || a.filePath || '';
+  let body = '';
+
+  if (content.startsWith('data:image/')) {
+    body = `<img class="ss-thumb" src="${content}" alt="${esc(name)}" onclick="openModal(event,'${content}')"/>`;
+  } else if (content.startsWith('data:')) {
+    body = `<a class="attachment-link" href="${content}" download="${esc(name)}">Download attachment</a>`;
+  } else {
+    body = `<pre class="attachment-text">${esc(content)}</pre>`;
+  }
+
+  return `<div class="attachment-item">
+    <div class="attachment-head"><span>${esc(name)}</span><span class="attachment-type">${esc(type)}</span></div>
+    ${body}
+  </div>`;
 }
 
 /* ── Modal ───────────────────────────────────────────────────────────────── */

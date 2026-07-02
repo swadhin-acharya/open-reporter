@@ -265,16 +265,6 @@
     .compat-card .fw-class { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--accent); }
     .compat-card .fw-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; }
 
-    /* ── Footer ──────────────────────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 2.5rem 2rem; text-align: center;
-      color: var(--muted); font-size: .82rem;
-    }
-    footer a { color: var(--accent); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-    .footer-logo { font-size: 1.5rem; font-weight: 800; color: var(--text); display: block; margin-bottom: .5rem; }
-
     /* ── Responsive ──────────────────────────────────────────────────── */
     @media(max-width:768px) {
       .install-steps { grid-template-columns: 1fr; }
@@ -306,7 +296,7 @@
 
 <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
 <section class="hero">
-  <div class="hero-badge"><i class="fa-solid fa-bolt"></i> v1.0.0 — Open Source</div>
+  <div class="hero-badge"><i class="fa-solid fa-bolt"></i> v1.1.1 — Open Source</div>
   <h1>Beautiful Test Reports<br/>for Every Java Framework</h1>
   <p class="hero-sub">
     OpenReporter generates self-contained, interactive HTML reports from your test runs.
@@ -454,7 +444,7 @@
         <div class="code-block"><span class="tag">&lt;dependency&gt;</span>
   <span class="tag">&lt;groupId&gt;</span>com.github.swadhinsoft<span class="tag">&lt;/groupId&gt;</span>
   <span class="tag">&lt;artifactId&gt;</span>open-reporter<span class="tag">&lt;/artifactId&gt;</span>
-  <span class="tag">&lt;version&gt;</span>1.0.0<span class="tag">&lt;/version&gt;</span>
+  <span class="tag">&lt;version&gt;</span>1.1.1<span class="tag">&lt;/version&gt;</span>
   <span class="tag">&lt;scope&gt;</span>test<span class="tag">&lt;/scope&gt;</span>
 <span class="tag">&lt;/dependency&gt;</span></div>
         <div class="copy-row">
@@ -466,7 +456,7 @@
 
     <div class="note" style="margin-top:1.5rem">
       <strong>Gradle (Kotlin DSL):</strong><br/>
-      <code style="color:var(--text)">testImplementation("com.github.swadhinsoft:open-reporter:1.0.0")</code>
+      <code style="color:var(--text)">testImplementation("com.github.swadhinsoft:open-reporter:1.1.1")</code>
       — add <code>maven { url = uri("https://jitpack.io") }</code> to your <code>repositories</code> block first.
     </div>
   </div>
@@ -767,72 +757,6 @@ mvn test -Dopenreporter.config=/path/to/file.json</div>
     </div>
   </div>
 </section>
-
-<!-- ── Support ────────────────────────────────────────────────────────────── -->
-<section id="support" style="padding:4rem 2rem;background:var(--surface)">
-  <div class="section-inner" style="text-align:center">
-    <div class="section-label" style="justify-content:center;display:flex">Support</div>
-    <h2 class="section-title" style="margin-bottom:.75rem">Find this useful?</h2>
-    <p style="color:var(--muted);max-width:480px;margin:0 auto 2rem;line-height:1.7">
-      OpenReporter is free and open-source. If it saves you time or makes your reports look great,
-      consider buying me a chai — it keeps the project going!
-    </p>
-    <div style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;align-items:center">
-      <a href="https://chai4.me/swadhin" target="_blank" rel="noopener" title="Support swadhin on Chai4Me"
-         style="display:inline-flex;flex-direction:column;align-items:center;justify-content:center;
-                background:#ffffff;padding:8px 32px;border-radius:16px;text-decoration:none;
-                border:1px solid #e5e7eb;box-shadow:0 4px 6px -1px rgba(0,0,0,0.08),0 2px 4px -2px rgba(0,0,0,0.05);
-                transition:transform .2s,box-shadow .2s"
-         onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 20px rgba(0,0,0,.12)'"
-         onmouseout="this.style.transform='';this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.08),0 2px 4px -2px rgba(0,0,0,0.05)'">
-        <img src="https://chai4.me/icons/wordmark.png" alt="Chai4Me" style="height:32px;object-fit:contain;margin-bottom:4px;"/>
-        <span style="color:#6b7280;font-family:sans-serif;font-size:14px;font-weight:600;">@swadhin</span>
-      </a>
-      <a href="https://swadhin41.gumroad.com/l/openreport" target="_blank" rel="noopener"
-         style="display:inline-flex;align-items:center;gap:.55rem;background:#000;color:#ff90e8;
-                font-weight:800;font-size:1rem;padding:.8rem 1.8rem;border-radius:12px;
-                text-decoration:none;transition:transform .2s,box-shadow .2s;
-                box-shadow:0 4px 16px rgba(0,0,0,.3)"
-         onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.45)'"
-         onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,.3)'">
-        &#128722; Buy on Gumroad
-      </a>
-      <a href="https://www.linkedin.com/in/swadhin-acharya-a4053b161/" target="_blank" rel="noopener"
-         class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem">
-        <i class="fa-brands fa-linkedin" style="color:#0a66c2"></i> Connect on LinkedIn
-      </a>
-      <a href="https://github.com/swadhinsoft/open-reporter" target="_blank" rel="noopener"
-         class="btn-outline" style="display:inline-flex;align-items:center;gap:.5rem">
-        <i class="fa-regular fa-star" style="color:#d29922"></i> Star on GitHub
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
-<footer>
-  <span class="footer-logo">OpenReporter</span>
-  Developed by <a href="https://www.linkedin.com/in/swadhin-acharya-a4053b161/" target="_blank" rel="noopener">Swadhin Acharya</a>
-  &nbsp;·&nbsp; MIT License<br/>
-  <br/>
-  <a href="https://github.com/swadhinsoft/open-reporter" target="_blank">
-    <i class="fa-brands fa-github"></i> GitHub
-  </a> &nbsp;·&nbsp;
-  <a href="https://jitpack.io/#swadhinsoft/open-reporter" target="_blank">JitPack</a> &nbsp;·&nbsp;
-  <a href="https://github.com/swadhinsoft/open-reporter/issues" target="_blank">Issues</a> &nbsp;·&nbsp;
-  <a href="https://swadhin41.gumroad.com/l/openreport" target="_blank" rel="noopener"
-     style="display:inline-flex;align-items:center;gap:.3rem;background:#000;color:#ff90e8;
-            padding:2px 10px;border-radius:6px;font-size:.72rem;font-weight:700;text-decoration:none;vertical-align:middle">
-    &#128722; Gumroad
-  </a> &nbsp;·&nbsp;
-  <a href="https://chai4.me/swadhin" target="_blank" rel="noopener"
-     style="display:inline-flex;flex-direction:column;align-items:center;background:#fff;
-            padding:3px 12px;border-radius:8px;border:1px solid #e5e7eb;text-decoration:none;
-            vertical-align:middle;box-shadow:0 1px 4px rgba(0,0,0,.08)">
-    <img src="https://chai4.me/icons/wordmark.png" alt="Chai4Me" style="height:14px;object-fit:contain;"/>
-    <span style="color:#6b7280;font-size:.6rem;font-weight:600;font-family:sans-serif">@swadhin</span>
-  </a>
-</footer>
 
 <script>
 /* ── Tabs ────────────────────────────────────────────────────────────────── */

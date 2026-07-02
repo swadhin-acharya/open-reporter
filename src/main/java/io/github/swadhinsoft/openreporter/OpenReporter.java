@@ -2,6 +2,7 @@ package io.github.swadhinsoft.openreporter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.swadhinsoft.openreporter.config.ReporterConfig;
+import io.github.swadhinsoft.openreporter.model.AttachmentModel;
 import io.github.swadhinsoft.openreporter.model.StepModel;
 import io.github.swadhinsoft.openreporter.model.TestResultModel;
 import org.openqa.selenium.WebDriver;
@@ -51,6 +52,8 @@ public class OpenReporter {
     private static final ThreadLocal<String>          browserHolder = new ThreadLocal<>();
 
     private static final String TEMPLATE = "report-template.html";
+    private static final String RUN_TIMESTAMP =
+            new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
     private OpenReporter() {}
 
@@ -112,11 +115,29 @@ public class OpenReporter {
      * @param status one of {@code PASSED}, {@code FAILED}, {@code SKIPPED}
      */
     public void finishTest(String status) {
+        finishTest(status, null);
+    }
+
+    /**
+     * Called by an adapter when a test finishes with a framework-supplied duration.
+     *
+     * @param status one of {@code PASSED}, {@code FAILED}, {@code SKIPPED}
+     * @param durationMs framework duration in milliseconds, or {@code null} to calculate locally
+     */
+    public void finishTest(String status, Long durationMs) {
         TestResultModel m = current.get();
-        if (m == null) return;
+        if (m == null) {
+            warnNoCurrent("finishTest(" + status + ")");
+            return;
+        }
         m.setStatus(status);
-        m.setDurationMs(System.currentTimeMillis() - m.getStartTime());
+        m.setDurationMs(durationMs != null ? durationMs : System.currentTimeMillis() - m.getStartTime());
         results.add(m);
+        current.remove();
+    }
+
+    /** Discards the in-progress test for adapters that receive non-execution runner events. */
+    public void discardCurrentTest() {
         current.remove();
     }
 
@@ -140,8 +161,31 @@ public class OpenReporter {
 
     private void addStep(String description, String status) {
         TestResultModel m = current.get();
-        if (m == null) return;
+        if (m == null) {
+            warnNoCurrent("step(" + description + ")");
+            return;
+        }
         m.addStep(new StepModel(description, status));
+    }
+
+    /** Adds a log entry to the current test, warning if no test is active. */
+    public void log(String entry) {
+        TestResultModel m = current.get();
+        if (m == null) {
+            warnNoCurrent("log(" + entry + ")");
+            return;
+        }
+        m.addLog(entry);
+    }
+
+    /** Adds an attachment to the current test, warning if no test is active. */
+    public void attachment(String name, String mimeType, String content) {
+        TestResultModel m = current.get();
+        if (m == null) {
+            warnNoCurrent("attachment(" + name + ")");
+            return;
+        }
+        m.addAttachment(new AttachmentModel(name, mimeType, content, null));
     }
 
     // ── Report generation ────────────────────────────────────────────────────
@@ -155,7 +199,7 @@ public class OpenReporter {
         try {
             ReporterConfig cfg = ReporterConfig.getInstance();
             String outputDir  = cfg.getOutputDir();
-            String reportFile = outputDir + "/report.html";
+            String reportFile = outputDir + "/" + buildReportFileName(cfg);
 
             String html = fillTemplate(readTemplate(), cfg);
             File dir = new File(outputDir);
@@ -171,6 +215,26 @@ public class OpenReporter {
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
+
+    private void warnNoCurrent(String operation) {
+        System.err.println("[OpenReporter] WARN: No active test for " + operation
+                + ". Ensure the framework adapter received the test-start event on this execution thread.");
+    }
+
+    private String buildReportFileName(ReporterConfig cfg) {
+        String configured = cfg.getReportFileName();
+        if (configured == null || configured.trim().isEmpty()) {
+            configured = "report.html";
+        }
+        if (!cfg.isTimestampedReport()) {
+            return configured;
+        }
+
+        int dot = configured.lastIndexOf('.');
+        String base = dot > 0 ? configured.substring(0, dot) : configured;
+        String ext = dot > 0 ? configured.substring(dot) : ".html";
+        return base + "_" + RUN_TIMESTAMP + ext;
+    }
 
     private String readTemplate() throws Exception {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(TEMPLATE)) {
